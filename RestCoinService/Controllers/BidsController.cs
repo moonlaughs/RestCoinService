@@ -15,14 +15,34 @@ namespace RestCoinService.Controllers
     {
         static readonly HttpClient Client = new HttpClient();
         private static string _uri = "http://localhost:58162/api/bids";
+        private static List<Bid> listOfBids;
+        private static int _nextId;
 
-        private static List<Bid> listOfBids = new List<Bid>()
+        static BidsController()
         {
-            new Bid(1, "Gold DK 1640", 2500, "Mike"),
-            new Bid(2, "Gold NL 1764", 5000, "Anbo"),
-            new Bid(3, "Gold FR1644", 35000, "Hammer"),
-            new Bid(4, "Silver GR 333", 2500, "Mike")
-        };
+            Initialize();
+        }
+
+        public void ReInitialize()
+        {
+            Initialize();
+        }
+
+        private static void Initialize()
+        {
+            listOfBids = new List<Bid>();
+            Bid b1 = new Bid(1, "Gold DK 1640", 2500, "Mike");
+            Bid b2 = new Bid(2, "Gold NL 1764", 5000, "Anbo");
+            Bid b3 = new Bid(3, "Gold FR1644", 35000, "Hammer");
+            Bid b4 = new Bid(4, "Silver GR 333", 2500, "Mike");
+            listOfBids.Add(b1);
+            listOfBids.Add(b2);
+            listOfBids.Add(b3);
+            listOfBids.Add(b4);
+            _nextId = 5;
+        }
+
+        
 
         // GET: api/Bids
         [HttpGet]
@@ -43,13 +63,21 @@ namespace RestCoinService.Controllers
         [HttpPost]
         public void Post([FromBody] Bid newBid)
         {
+            newBid.Id = _nextId;
+            _nextId++;
             listOfBids.Add(newBid);
         }
 
         // PUT: api/Bids/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public Bid Put(int id, [FromBody] Bid value)
         {
+            Bid b = listOfBids.FirstOrDefault(bid => bid.Id == id);
+            if (b == null) return null;
+            b.Item = value.Item;
+            b.Price = value.Price;
+            b.Name = value.Name;
+            return b;
         }
 
         // DELETE: api/ApiWithActions/5
@@ -59,5 +87,12 @@ namespace RestCoinService.Controllers
             Bid obj = listOfBids.Find(b => b.Id == id);
             listOfBids.Remove(obj);
         }
+
+        //[HttpDelete("{id}")]
+        //public int Delete(int id)
+        //{
+        //    int howMany = _students.RemoveAll(student => student.Id == id);
+        //    return howMany;
+        //}
     }
 }
